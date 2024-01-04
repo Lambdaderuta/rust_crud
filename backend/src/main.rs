@@ -1,29 +1,30 @@
-use axum::http::StatusCode;
+use axum::routing::{delete, get, post, put};
 use axum::Router;
-use axum::{extract::State, routing::get};
-use bb8::{Pool, PooledConnection};
-use bb8_postgres::PostgresConnectionManager;
-use tokio_postgres::NoTls;
+use sqlx::postgres::PgPoolOptions;
 
-use controllers::product::get_products;
+use controllers::product::{create_product, delete_product, get_products, update_product};
 
 pub mod controllers;
 pub mod models;
-pub mod types;
 pub mod utils;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), sqlx::Error> {
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    let manager =
-        PostgresConnectionManager::new_from_stringlike("host=localhost user=postgres password=1234", NoTls)
-            .unwrap();
-    let pool = Pool::builder().build(manager).await.unwrap();
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect("postgres://postgres:1234@localhost/backend")
+        .await?;
 
     let app = Router::new()
-        .route("/products", get(get_products))
+        .route("/get_all", get(get_products))
+        .route("/create", post(create_product))
+        .route("/update", put(update_product))
+        .route("/delete", delete(delete_product))
         .with_state(pool);
 
-    axum::serve(listener, app).await.unwrap()
+    axum::serve(listener, app).await.unwrap();
+
+    Ok(())
 }

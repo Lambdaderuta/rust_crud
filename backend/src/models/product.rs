@@ -1,11 +1,10 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
-struct Product {
-    id: Option<Uuid>,
-    name: String,
-    color: String,
-    category: String,
-    price: i32,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Product {
+    pub id: i32,
+    pub name: String,
+    pub color: String,
+    pub category: String,
+    pub price: i32,
 }
