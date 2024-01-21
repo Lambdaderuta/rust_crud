@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "trunk serve --open"
+  },
   "devDependencies": {
     "tailwindcss": "^3.4.0"
   }
